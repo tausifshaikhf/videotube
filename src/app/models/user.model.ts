@@ -1,5 +1,6 @@
+
 import mongoose,{Schema} from "mongoose";
-import jwt from 'jsonwebtoken'
+import jwt, { SignOptions, Secret } from "jsonwebtoken";
 import bcrypt from 'bcrypt'
 
 export interface User extends Document{
@@ -78,32 +79,34 @@ userSchema.pre("save",async function(next){
 // here, i will define custom methods using the methods object of mongoose's schemas
 // It will also has access to this document before saving or after saving it into the database
 // I would have no access to this model fields if i had created a normal functions
-userSchema.methods.isPasswordCorrect = async function(password: any){
+userSchema.methods.isPasswordCorrect = async function(password: string){
     return await bcrypt.compare(password, this.password)
     // It will return true or false
 }
 
 // we're going to generate access token and refresh token both with different uses but are jwt
 // Here both the tokens are doing the same work but the refresh token will contain less information compared to access token
-userSchema.methods.generateAccessToken = function(){
-    // these methods have the access of all the fields in the database and we can access them using this keyword
-    return jwt.sign(
-        {
-            // this object contains the payload
-            _id : this._id,
-            email : this.email,
-            username : this.username,
-            fullName : this.fullName
-        },
-        // It ensures that the environment variable is set and not undefined
-        // this is the secret key that we will use to sign the token
-        process.env.ACCESS_TOKEN_SECRET!,
-        // the below object contains the expiry information of this token
-        {
-            expiresIn : process.env.ACCESS_TOKEN_EXPIRY || '1d'
-        }
-    )
-}
+userSchema.methods.generateAccessToken = function () {
+  if (!process.env.ACCESS_TOKEN_SECRET) {
+    throw new Error("ACCESS_TOKEN_SECRET is not set");
+  }
+  
+
+  const payload = {
+    _id: this._id,
+    email: this.email,
+    username: this.username,
+    fullName: this.fullName
+  };
+
+  return jwt.sign(
+    payload,
+    process.env.ACCESS_TOKEN_SECRET as Secret,
+    {
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRY || "1d"
+    }
+  );
+};
 
 userSchema.methods.generateRefreshToken = function(){
     // these methods have the access of all the fields in the database and we can access them using this keyword
@@ -113,12 +116,12 @@ userSchema.methods.generateRefreshToken = function(){
             _id : this._id,
             
         },
-        process.env.REFRESH_TOKEN_SECRET!,
+        process.env.REFRESH_TOKEN_SECRET as Secret,
         // the below object contains the expiry information of this token
         {
             expiresIn : process.env.REFRESH_TOKEN_EXPIRY || '10d'
         }
-    )
+    ) 
 }
 
 export const User = mongoose.model("User",userSchema)
