@@ -1,5 +1,5 @@
 
-import mongoose,{Schema} from "mongoose";
+import mongoose,{Schema , Document} from "mongoose";
 import jwt, { SignOptions, Secret } from "jsonwebtoken";
 import bcrypt from 'bcrypt'
 
@@ -103,7 +103,7 @@ userSchema.methods.generateAccessToken = function () {
     payload,
     process.env.ACCESS_TOKEN_SECRET as Secret,
     {
-      expiresIn: process.env.ACCESS_TOKEN_EXPIRY || "1d"
+      expiresIn: "1d"
     }
   );
 };
@@ -119,9 +119,9 @@ userSchema.methods.generateRefreshToken = function(){
         process.env.REFRESH_TOKEN_SECRET as Secret,
         // the below object contains the expiry information of this token
         {
-            expiresIn : process.env.REFRESH_TOKEN_EXPIRY || '10d'
+            expiresIn : '10d'
         }
     ) 
 }
 
-export const User = mongoose.model("User",userSchema)
+export const User = mongoose.models.User || mongoose.model<User>("User",userSchema)

@@ -1,7 +1,14 @@
-import mongoose,{Schema} from "mongoose";
+import mongoose,{Schema , Document} from "mongoose";
 
 
-const subscriptionSchema = new Schema(
+export interface Subscription extends Document{
+    subscriber : mongoose.Types.ObjectId,
+    channel : mongoose.Types.ObjectId,
+    createdAt? : Date,
+    updatedAt? : Date,
+}
+
+const subscriptionSchema = new Schema<Subscription>(
     {
         subscriber : {
             type : Schema.Types.ObjectId,  // One who's subscribing
@@ -15,4 +22,4 @@ const subscriptionSchema = new Schema(
     {timestamps : true}
 )
 
-export const Subscription = mongoose.model("Subscription",subscriptionSchema)
+export const Subscription = mongoose?.models.Subscription || mongoose.model<Subscription>("Subscription",subscriptionSchema)

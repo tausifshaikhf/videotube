@@ -1,6 +1,16 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema , Document } from "mongoose";
 
-const likeSchema = new Schema(
+export interface Like extends Document{
+    video : mongoose.Types.ObjectId,
+    comment : mongoose.Types.ObjectId,
+    tweet : mongoose.Types.ObjectId,
+    likedBy : mongoose.Types.ObjectId,
+    createdAt? : Date,
+    updatedAt? : Date,
+}
+
+
+const likeSchema = new Schema<Like>(
     {
         video : {
             type : Schema.Types.ObjectId,
@@ -23,4 +33,4 @@ const likeSchema = new Schema(
 )
 
 
-export const Like = mongoose.model("Like",likeSchema)
+export const Like = mongoose.models.Like || mongoose.model<Like>("Like",likeSchema)

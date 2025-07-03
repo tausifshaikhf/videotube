@@ -1,5 +1,16 @@
-import mongoose,{Schema} from "mongoose";
+import mongoose,{Document, Schema} from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
+
+
+export interface Comments extends Document{
+    content : string,
+    video : mongoose.Types.ObjectId,
+    owner : mongoose.Types.ObjectId,
+    createdAt? : Date,
+    updatedAt? : Date,
+}
+
+
 
 // we can't give all the comments or videos to the user that's why here we're using mongooseAggregatePaginate
 const commentSchema = new Schema(
